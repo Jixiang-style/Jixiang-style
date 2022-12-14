@@ -1,3 +1,3 @@
-# renran
-Config files for my GitHub profile.
-# 荏苒咨询
+# 项目：荏苒咨询
+## 架构：flask + Vue
+
