@@ -7,14 +7,13 @@
 @time: 2022/12/14 16:28
 @desc:
 """
-from flask import g, request, Flask, current_app, jsonify
 import jwt
-from jwt import exceptions
-from jwt.jwt import JWT
-import functools
-import datetime
+from flask import g, request, Flask
+from util import SALT
+from util import create_token, login_required
+from renranapi.app.models import app, db, Users
 
-app = Flask(__name__)
+# app = Flask(__name__)
 
 # 处理中文编码
 app.config['JSON_AS_ASCII'] = False
@@ -27,75 +26,6 @@ def after_request(resp):
 
 
 app.after_request(after_request)
-
-# 构造header
-headers = {
-    'typ': 'jwt',
-    'alg': 'HS256'
-}
-
-# 密钥
-SALT = 'iv%i6xo7l8_t9bf_u!8#g#m*)*+ej@bek6)(@u3kh*42+unjv='
-
-
-def create_token(username, password):
-    # 构造payload
-    payload = {
-        'username': username,
-        'password': password,  # 自定义用户ID
-        'exp': datetime.datetime.utcnow() + datetime.timedelta(days=7)  # 超时时间
-    }
-    result = JWT.encode(payload=payload, key=SALT, alg="HS256", optional_headers=headers).decode('utf-8')
-
-    return result
-
-
-def verify_jwt(token, secret=None):
-    """
-    检验jwt
-    :param token: jwt
-    :param secret: 密钥
-    :return: dict: payload
-    """
-    if not secret:
-        secret = current_app.config['JWT_SECRET']
-
-    try:
-        payload = JWT.decode(token, secret, algorithms=['HS256'])
-        return payload
-    except exceptions.JWTException:  # 'token已失效'
-        return 1
-    except jwt.JWTDecodeError:  # 'token认证失败'
-        return 2
-    except jwt.InvalidTokenError:  # '非法的token'
-        return 3
-
-
-def login_required(f):
-    """
-    让装饰器装饰的函数属性不会变 -- name属性
-    第1种方法,使用functools模块的wraps装饰内部函数
-    :param f:
-    :return:
-    """
-
-    @functools.wraps(f)
-    def wrapper(*args, **kwargs):
-        try:
-            if g.username == 1:
-                return {'code': 4001, 'message': 'token已失效'}, 401
-            elif g.username == 2:
-                return {'code': 4001, 'message': 'token认证失败'}, 401
-            elif g.username == 2:
-                return {'code': 4001, 'message': '非法的token'}, 401
-            else:
-                return f(*args, **kwargs)
-        except BaseException as e:
-            return {'code': 4001, 'message': '请先登录认证.'}, 401
-
-    '第2种方法,在返回内部函数之前,先修改wrapper的name属性'
-    # wrapper.__name__ = f.__name__
-    return wrapper
 
 
 @app.before_request
@@ -117,7 +47,7 @@ def jwt_authentication():
             payload = jwt.decode(token, SALT, algorithms=['HS256'])
             "获取载荷中的信息赋值给g对象"
             g.username = payload.get('username')
-        except exceptions.ExpiredSignatureError:  # 'token已失效'
+        except jwt.ExpiredSignatureError:  # 'token已失效'
             g.username = 1
         except jwt.DecodeError:  # 'token认证失败'
             g.username = 2
@@ -140,9 +70,16 @@ def login():
             username = data.get("username")
             password = data.get("password")
             # 验证账号密码，正确则返回token，用于后续接口权限验证
-            if username == "root" and password == "123456":
+            # 查询数据库，是否有满足条件的用户
+            db_info = Users.query.filter_by(nickname=username, password=password).first()
+            print("数据库查询，第一条数据", db_info)
+            if db_info:
+                print("登录成功！")
                 token = create_token(username, password)
                 return {"code": 200, "message": "success", "data": {"token": token}}
+            # if username == "root" and password == "123456":
+            #     token = create_token(username, password)
+            #     return {"code": 200, "message": "success", "data": {"token": token}}
             else:
                 return {"code": 501, "message": "登陆失败"}
         else:
