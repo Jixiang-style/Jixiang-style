@@ -7,11 +7,15 @@
 @time: 2022/12/14 16:28
 @desc:
 """
+import time
+
 import jwt
-from flask import g, request, Flask
+from flask import g, request, Flask, jsonify
 from util import SALT
-from util import create_token, login_required
-from renranapi.app.models import app, db, Users
+from util import encode_token, identify, authenticate
+from renranapi.app.models import app, Users, DB, UsersInfo
+from renranapi.app import common
+from renranapi.app.users import sms, connect
 
 # app = Flask(__name__)
 
@@ -61,6 +65,7 @@ def hello_world():
 
 
 # 登录
+# todo qq登录
 @app.route('/api/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -69,19 +74,10 @@ def login():
         if type_ == 'login':
             username = data.get("username")
             password = data.get("password")
-            # 验证账号密码，正确则返回token，用于后续接口权限验证
-            # 查询数据库，是否有满足条件的用户
-            db_info = Users.query.filter_by(nickname=username, password=password).first()
-            print("数据库查询，第一条数据", db_info)
-            if db_info:
-                print("登录成功！")
-                token = create_token(username, password)
-                return {"code": 200, "message": "success", "data": {"token": token}}
-            # if username == "root" and password == "123456":
-            #     token = create_token(username, password)
-            #     return {"code": 200, "message": "success", "data": {"token": token}}
+            if not username or not password:
+                return jsonify(common.falseReturn("", "登陆失败，请检查用户名密码是否正确"))
             else:
-                return {"code": 501, "message": "登陆失败"}
+                return authenticate(username)
         else:
             return {"code": 201, "message": "type is false"}
 
@@ -91,9 +87,84 @@ def login():
         return {"code": 203, "message": "'not support other method'"}
 
 
+# 注册
+# # todo 短信、qq邮箱接收短信
+# @app.route('/api/register', methods=['post'])
+# def register():
+#     username = request.form.get("username")
+#     password = request.form.get("password")
+#     user = Users(nickname=username, password=Users.set_password(Users, password), login_time=int(time.time()))
+#     Users.add(Users, user)
+#     if user.id:
+#         returnUser = {
+#             'id': user.id,
+#             'nickname': user.nickname,
+#             'login_time': user.login_time
+#         }
+#         return jsonify(common.trueReturn(returnUser, "用户注册成功"))
+#     else:
+#         return jsonify(common.falseReturn("", "用户注册失败"))
+
+
+# 注册
+# todo 短信、qq邮箱接收短信
+@app.route('/api/register', methods=['post', 'get'])
+def register():
+    phone_number = request.form.get("phoneNumber")
+    yz_code = request.form.get("yz_code")
+    print("接口收到的验证码", yz_code, type(yz_code))
+    # 检查改手机号是否注册过
+    db_umber = DB(UsersInfo).get(mobile=phone_number)
+    if db_umber:
+        return jsonify(common.falseReturn("", "该号码已经被注册"))
+    # 连接redis，获取验证码
+    conn = connect.redisConnect(1)
+    if conn.get(phone_number) == 0:
+        return jsonify(common.falseReturn("", "验证码已过期"))
+    rds_code = conn.get(phone_number)
+    if rds_code is None:
+        return jsonify(common.falseReturn("", "验证码为空"))
+    # bytes 类型转字符串
+    rds_code = str(rds_code, "utf-8")
+    print("表单收到的验证码 %s %s \n redis收到的验证码%s %s" % (yz_code, type(yz_code), rds_code, type(rds_code)))
+    if rds_code == yz_code:
+        user_info = UsersInfo(mobile=phone_number)
+        DB(UsersInfo).add(user_info)
+        return jsonify(common.trueReturn("", "注册成功!!!"))
+    else:
+        return jsonify(common.falseReturn("", "验证码有误"))
+
+
+# 获取短信验证码
+@app.route("/api/send_code", methods=["get", "post"])
+def send_code():
+    phone_number = request.form.get("phoneNumber")
+    # 发送短信验证码
+    sms_code = sms.generate_code()
+    # todo 暂时同步发送，后续用celery改异步
+    sms.send_message(sms_code, phone_number)
+    # 同步写进redis
+    conn = connect.redisConnect(1)
+    # 默认保留五分钟
+    conn.setex(phone_number, 300, sms_code)
+    print("收到redis验证码", conn.get(phone_number))
+    return jsonify(common.trueReturn(1, "success"))
+
+
+# 获取用户信息
+@app.route("/api/user", methods=["get"])
+def get():
+    a = DB(Users).get(id=5)
+    # DB(Users).delete(id=3)
+    user = Users(nickname="user002", password=Users.set_password(Users, "123456"), login_time=int(time.time()))
+    DB(Users).add(user)
+    print("a:", a)
+    return "操作成功！！！"
+
+
 # 测试接口
 @app.route('/api/test', methods=['GET', 'POST'])
-@login_required
+@identify
 def submit_test_info_():
     username = g.username
     return username

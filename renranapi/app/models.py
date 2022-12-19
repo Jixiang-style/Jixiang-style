@@ -7,8 +7,12 @@
 @time: 2022/12/14 16:31
 @desc:
 """
+import time
+
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+from werkzeug.security import generate_password_hash, check_password_hash
+from sqlalchemy.exc import SQLAlchemyError
 import pymysql
 
 pymysql.install_as_MySQLdb()
@@ -66,8 +70,35 @@ class Users(db.Model):
     # 用户账户信息
     nickname = db.Column(db.String(64), nullable=True, unique=True, comment="用户昵称")
     password = db.Column(db.String(128), nullable=True, comment="密码")
+    login_time = db.Column(db.String(128), default=0, comment="登录时间")
 
-    # 自定义方法
+    # 设置密码
+    def set_password(self, password):
+        return generate_password_hash(password)
+
+    # 校验密码
+    def check_password(self, hash, password):
+        return check_password_hash(hash, password)
+
+    # 查询用户
+    def get(self, id):
+        return self.db.query.filter_by(id=id).first()
+
+    # 添加用户
+    def add(self, user):
+        db.session.add(user)
+        return session_commit()
+        # 自定义方法
+
+    # 更新
+    def update(self):
+        return session_commit()
+
+    # 删除
+    def delete(self, id):
+        self.db.query.filter_by(id=id).delete()
+        return session_commit()
+
     def __repr__(self):
         return 'User:%s' % self.nickname
 
@@ -97,6 +128,38 @@ class Course(db.Model):
         return 'Course:%s' % self.name
 
 
+def session_commit():
+    try:
+        db.session.commit()
+    except SQLAlchemyError as e:
+        return str(e)
+
+
+class DB(object):
+
+    def __init__(self, db):
+        self.db = db
+
+    # 查询用户
+    def get(self, *args, **kwargs):
+        return self.db.query.filter_by(*args, **kwargs).first()
+
+    # 添加用户
+    def add(self, *args, **kwargs):
+        db.session.add(*args, **kwargs)
+        return session_commit()
+        # 自定义方法
+
+    # 更新
+    def update(self):
+        return session_commit()
+
+    # 删除
+    def delete(self, *args, **kwargs):
+        self.db.query.filter_by(*args, **kwargs).delete()
+        return session_commit()
+
+
 # class Role(db.Model):
 #     """用户角色/身份表"""
 #     # 重命名表名
@@ -120,15 +183,15 @@ def index():
 # 创建/删除所有的表
 # with app.app_context():
 #     db.create_all()  # 创建表
-#     us3 = Users(nickname='张三', password='123456')
-#     us4 = Users(nickname='李四', password='123456')
-#     us5 = Users(nickname='admin', password='123456')
+#     us3 = Users(nickname='张三', password='123456', login_time=int(time.time()))
+#     us4 = Users(nickname='李四', password='123456', login_time=int(time.time()))
+#     us5 = Users(nickname='admin', password='123456', login_time=int(time.time()))
 #
 #     # 一次保存多条数据
 #     db.session.add_all([us5, us3, us4])
 #     db.session.commit()
-# 删除表
-# db.drop_all()
+#     # 删除表
+#     # db.drop_all()
 
 # 创建对象
 # role1 = Role(name="admin")

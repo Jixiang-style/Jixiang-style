@@ -11,14 +11,16 @@
 
 def trueReturn(data, msg):
     return {
+        "code": 200,
         "status": True,
         "data": data,
         "msg": msg
     }
 
 
-def falseReturn(data, msg):
+def falseReturn(data, msg, code=None):
     return {
+        "code": code,
         "status": False,
         "data": data,
         "msg": msg
