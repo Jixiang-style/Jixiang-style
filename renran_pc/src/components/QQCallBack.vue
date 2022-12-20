@@ -140,7 +140,7 @@
                     qq_user: this.qq_user,
                 }).then(response=>{
                     this.$settings.save_user(sessionStorage, response.data);
-                    this.$settings.jump_page(this, `${response.data.nickname},欢迎来到荏苒!`);
+                    this.$settings.jump_page(this, response.data.nickname);
                 }).catch(error=>{
                     this.$message.error(error.response.data);
                 });
@@ -155,7 +155,7 @@
                     qq_user: this.qq_user,
                 }).then(response=>{
                     this.$settings.save_user(sessionStorage, response.data);
-                    this.$settings.jump_page(this, `${response.data.nickname},欢迎来到荏苒!`);
+                    this.$settings.jump_page(this, response.data.nickname);
                 }).catch(error=>{
                     this.$message.error("绑定QQ账号失败!"+error.response.data);
                 });

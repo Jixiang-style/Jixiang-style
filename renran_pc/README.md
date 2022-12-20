@@ -1,6 +1,6 @@
-# renran
+# renran_pc
 
-> A Vue.js project
+> 一個很牛逼的開發網站
 
 ## Build Setup
 
