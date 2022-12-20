@@ -1,12 +1,12 @@
 export default {
-  Host:"http://api.renran.cn:8000",
-  TC_captcha:{
+  Host: "http://127.0.0.1:5000",
+  TC_captcha: {
     app_id: "2015568925",
   },
-   save_user(storage, data){
-    if(storage === sessionStorage){
+  save_user(storage, data) {
+    if (storage === sessionStorage) {
       var storage2 = localStorage;
-    }else{
+    } else {
       var storage2 = sessionStorage;
     }
 
@@ -22,7 +22,7 @@ export default {
     storage.user_nickname = data.nickname;
     storage.user_avatar = data.avatar;
   },
-  jump_page(vm,nickname, title="登陆成功",confirm_text="个人中心",confirm_url="/", cancel_text="返回上一页"){
+  jump_page(vm, nickname, title = "登陆成功", confirm_text = "个人中心", confirm_url = "/", cancel_text = "返回上一页") {
     vm.$confirm(`${nickname},欢迎回到荏苒~`, title, {
       confirmButtonText: confirm_text,
       cancelButtonText: cancel_text,
@@ -35,12 +35,12 @@ export default {
       vm.$router.back();
     });
   },
-  check_user_login(vm){
+  check_user_login(vm) {
     // 判断用户是否已经登陆
     let token = localStorage.user_token || sessionStorage.user_token;
-    if(!token){
+    if (!token) {
       // 跳转到登陆页面
-      this.jump_page(vm, "尊敬的游客, 您尚未登陆!请登陆后再进行操作!", "警告","去登陆", "/login");
+      this.jump_page(vm, "尊敬的游客, 您尚未登陆!请登陆后再进行操作!", "警告", "去登陆", "/login");
     }
 
     return token;

@@ -11,10 +11,13 @@
 # 构造header
 import datetime
 import functools
+import os
+import sys
 import time
-
+from urllib.parse import urlencode
+sys.path.append(os.path.abspath(os.path.join(os.getcwd())).split('renranapi')[0])
 import jwt
-from flask import current_app, g, request, jsonify
+from flask import request, jsonify
 from renranapi.app import common
 from renranapi.app.models import Users
 

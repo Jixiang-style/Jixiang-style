@@ -7,18 +7,13 @@
 @time: 2022/12/14 16:31
 @desc:
 """
-import time
-
-from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy.exc import SQLAlchemyError
+from renranapi.manage import app
 import pymysql
 
 pymysql.install_as_MySQLdb()
-
-# 初始化
-app = Flask(import_name=__name__, template_folder='templates')
 
 
 # 声明和加载配置
@@ -69,6 +64,7 @@ class Users(db.Model):
     id = db.Column(db.Integer, primary_key=True, comment="主键")
     # 用户账户信息
     nickname = db.Column(db.String(64), nullable=True, unique=True, comment="用户昵称")
+    mobile = db.Column(db.String(64), index=True, comment="手机号码")
     password = db.Column(db.String(128), nullable=True, comment="密码")
     login_time = db.Column(db.String(128), default=0, comment="登录时间")
 
@@ -181,8 +177,8 @@ def index():
 
 # if __name__ == '__main__':
 # 创建/删除所有的表
-# with app.app_context():
-#     db.create_all()  # 创建表
+#     with app.app_context():
+#         db.create_all()  # 创建表
 #     us3 = Users(nickname='张三', password='123456', login_time=int(time.time()))
 #     us4 = Users(nickname='李四', password='123456', login_time=int(time.time()))
 #     us5 = Users(nickname='admin', password='123456', login_time=int(time.time()))
@@ -191,7 +187,7 @@ def index():
 #     db.session.add_all([us5, us3, us4])
 #     db.session.commit()
 #     # 删除表
-#     # db.drop_all()
+#         db.drop_all()
 
 # 创建对象
 # role1 = Role(name="admin")

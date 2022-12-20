@@ -10,10 +10,11 @@
 import time
 
 import jwt
-from flask import g, request, Flask, jsonify
+from flask import g, request, jsonify
 from util import SALT
-from util import encode_token, identify, authenticate
-from renranapi.app.models import app, Users, DB, UsersInfo
+from util import identify, authenticate
+from renranapi.manage import app
+from renranapi.app.models import Users, DB, UsersInfo
 from renranapi.app import common
 from renranapi.app.users import sms, connect
 
@@ -26,6 +27,8 @@ app.config['JSON_AS_ASCII'] = False
 # 跨域支持
 def after_request(resp):
     resp.headers['Access-Control-Allow-Origin'] = '*'
+    resp.headers['Access-Control-Allow-Methods'] = 'POST,GET,OPTIONS'
+    resp.headers['Access-Control-Allow-Headers'] = 'x-requested-with,content-type'
     return resp
 
 
@@ -110,11 +113,15 @@ def login():
 # todo 短信、qq邮箱接收短信
 @app.route('/api/register', methods=['post', 'get'])
 def register():
-    phone_number = request.form.get("phoneNumber")
-    yz_code = request.form.get("yz_code")
+    # 获取结构体信息
+    phone_number = request.json.get("mobile")
+    nickname = request.json.get("nickname")
+    password = request.json.get("password")
+    print("收到的参数", request.json)
+    yz_code = request.json.get("sms_code")
     print("接口收到的验证码", yz_code, type(yz_code))
     # 检查改手机号是否注册过
-    db_umber = DB(UsersInfo).get(mobile=phone_number)
+    db_umber = DB(Users).get(mobile=phone_number)
     if db_umber:
         return jsonify(common.falseReturn("", "该号码已经被注册"))
     # 连接redis，获取验证码
@@ -130,6 +137,9 @@ def register():
     if rds_code == yz_code:
         user_info = UsersInfo(mobile=phone_number)
         DB(UsersInfo).add(user_info)
+        user = Users(nickname=nickname, mobile=phone_number, password=Users.set_password(Users, password),
+                     login_time=str(time.time()))
+        DB(Users).add(user)
         return jsonify(common.trueReturn("", "注册成功!!!"))
     else:
         return jsonify(common.falseReturn("", "验证码有误"))
@@ -138,17 +148,24 @@ def register():
 # 获取短信验证码
 @app.route("/api/send_code", methods=["get", "post"])
 def send_code():
-    phone_number = request.form.get("phoneNumber")
-    # 发送短信验证码
-    sms_code = sms.generate_code()
-    # todo 暂时同步发送，后续用celery改异步
-    sms.send_message(sms_code, phone_number)
-    # 同步写进redis
-    conn = connect.redisConnect(1)
-    # 默认保留五分钟
-    conn.setex(phone_number, 300, sms_code)
-    print("收到redis验证码", conn.get(phone_number))
-    return jsonify(common.trueReturn(1, "success"))
+    if request.method == "POST":
+        phone_number = request.json.get("phoneNumber")
+        print("结构体", request.json)
+        print("收到的电话号码", phone_number)
+        # 发送短信验证码
+        sms_code = sms.generate_code()
+        # todo 暂时同步发送，后续用celery改异步
+        sms.send_message(sms_code, phone_number)
+        print("验证码已发送")
+        # 同步写进redis
+        conn = connect.redisConnect(1)
+        print("redis连接成功")
+        # 默认保留五分钟
+        conn.setex(phone_number, 300, sms_code)
+        print("收到redis验证码", conn.get(phone_number))
+        return jsonify(common.trueReturn(1, "success"))
+    if request.method == "GET":
+        return jsonify(common.falseReturn("", "请求方法错误!!!"))
 
 
 # 获取用户信息
@@ -156,9 +173,9 @@ def send_code():
 def get():
     a = DB(Users).get(id=5)
     # DB(Users).delete(id=3)
-    user = Users(nickname="user002", password=Users.set_password(Users, "123456"), login_time=int(time.time()))
-    DB(Users).add(user)
-    print("a:", a)
+    user = Users(nickname="user002", password=Users.set_password(Users, "123456"))
+    # DB(Users).add(user)
+    print("a:", user)
     return "操作成功！！！"
 
 
@@ -171,4 +188,4 @@ def submit_test_info_():
 
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=8090, debug=True)
+    app.run(host='127.0.0.1', port=5000, debug=True)
