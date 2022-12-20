@@ -7,9 +7,9 @@
 
         <!-- 右上角 -->
         <!-- 未登录显示登录/注册/写文章 -->
-        <a class="btn write-btn" target="_blank" href="/writer"><img class="icon-write" src="/static/image/write.svg">写文章</a>
-        <router-link class="btn sign-up" id="sign_up" to="/user/register">注册</router-link>
-        <router-link class="btn log-in" id="sign_in" to="/user/login">登录</router-link>
+        <router-link class="btn write-btn" target="_blank" to="/writer"><img class="icon-write" src="/static/image/write.svg">写文章</router-link>
+        <router-link class="btn sign-up" id="sign_up" to="/register">注册</router-link>
+        <router-link class="btn log-in" id="sign_in" to="/login">登录</router-link>
         <div class="container">
           <div class="collapse navbar-collapse" id="menu">
             <ul class="nav navbar-nav">
@@ -28,7 +28,7 @@
                   <i class="iconfont ic-navigation-follow menu-icon"></i>
                   <span class="menu-text">{{nav.name}}</span>
                 </a>
-                <ul class="dropdown-menu" v-if="nav.son_list.length>0">
+                <ul class="dropdown-menu" v-if="nav.son_list.length>1">
                   <li :key="key" v-for="son in nav.son_list">
                     <router-link :to="son.link" v-if="son.is_http">
                       <i class="iconfont ic-comments"></i>
@@ -41,11 +41,18 @@
                   </li>
                 </ul>
               </li>
+<!--              <li class="tab">-->
+<!--                <a href="/">-->
+<!--                  <i class="iconfont ic-navigation-notification menu-icon"></i>-->
+<!--                  <span class="menu-text">消息</span>-->
+<!--                </a>-->
+<!--              </li>-->
               <li class="search">
                 <form target="_blank" action="/search" accept-charset="UTF-8" method="get">
                   <input type="text" name="q" id="q" value="" autocomplete="off" placeholder="搜索" class="search-input">
                   <a class="search-btn" href="javascript:void(0)"></a>
                 </form>
+
               </li>
             </ul>
           </div>

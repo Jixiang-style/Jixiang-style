@@ -6,9 +6,9 @@
 
 <h4 class="title">
   <div class="normal-title">
-    <router-link class="active" to="/user/login">登录</router-link>
+    <router-link class="active" to="/login">登录</router-link>
     <b>·</b>
-    <router-link id="js-sign-up-btn" class="" to="/user/register">注册</router-link>
+    <router-link id="js-sign-up-btn" class="" to="/register">注册</router-link>
   </div>
 </h4>
 <div class="js-sign-in-container">
@@ -80,10 +80,28 @@
                     // 根据用户是否勾选了remember_me[记住我]来使用本地存储保存用户的jwt
                     if(this.remember_me){
                         // 永久存储[一天]
-                        this.$settings.save_user(localStorage, response.data);
+                        localStorage.user_token = response.data.token;
+                        localStorage.user_name = response.data.username;
+                        localStorage.user_id = response.data.id;
+                        localStorage.user_nickname = response.data.nickname;
+                        localStorage.user_avatar = response.data.avatar;
+                        sessionStorage.removeItem("user_token");
+                        sessionStorage.removeItem("user_name");
+                        sessionStorage.removeItem("user_id");
+                        sessionStorage.removeItem("user_nickname");
+                        sessionStorage.removeItem("user_avatar");
                     }else{
                         // 临时存储
-                        this.$settings.save_user(sessionStorage, response.data);
+                        sessionStorage.user_token = response.data.token;
+                        sessionStorage.user_name = response.data.username;
+                        sessionStorage.user_id = response.data.id;
+                        sessionStorage.user_nickname = response.data.nickname;
+                        sessionStorage.user_avatar = response.data.avatar;
+                        localStorage.removeItem("user_token");
+                        localStorage.removeItem("user_name");
+                        localStorage.removeItem("user_id");
+                        localStorage.removeItem("user_nickname");
+                        localStorage.removeItem("user_avatar");
                     }
 
                     // 登录跳转
@@ -107,6 +125,7 @@
                     }else{
                         console.log(error);
                     }
+
                 });
 
             },

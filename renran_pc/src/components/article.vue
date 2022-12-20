@@ -11,12 +11,11 @@
         <div style="margin-left: 8px;">
          <div class="_3U4Smb">
           <span class="FxYr8x"><a class="_1OhGeD" href="">{{article.user.nickname}}</a></span>
-          <button data-locale="zh-CN" type="button" class="_3kba3h _1OyPqC _3Mi9q9 _34692-" v-if="article.focus==2" @mouseover="user_focus_text='取消关注'" @mouseout="user_focus_text='已关注'" @click="cancal_focus"><span>{{user_focus_text}}</span></button>
-          <button data-locale="zh-CN" type="button" class="_3kba3h _1OyPqC _3Mi9q9 _34692-" v-if="article.focus==1 || article.focus==0" @click="confirm_focus"><span>关注</span></button>
+          <button data-locale="zh-CN" type="button" class="_3kba3h _1OyPqC _3Mi9q9 _34692-"><span>关注</span></button>
          </div>
          <div class="s-dsoj">
           <time :datetime="article.updated_time">{{article.updated_time|timeformat}}</time>
-          <span>字数 {{article.content && article.content.length}}</span>
+          <span>字数 {{article.content.length}}</span>
           <span>阅读 {{article.read_count}}</span>
          </div>
         </div>
@@ -68,7 +67,7 @@
        <div class="_191KSt">
         &quot;小礼物走一走，来简书关注我&quot;
        </div>
-       <button type="button" class="_1OyPqC _3Mi9q9 _2WY0RL _1YbC5u" @click.stop="reward"><span>赞赏支持</span></button>
+       <button type="button" class="_1OyPqC _3Mi9q9 _2WY0RL _1YbC5u" @click.stop="is_show_reward_window=true"><span>赞赏支持</span></button>
        <span class="_3zdmIj" v-if="article.reward_count>0">已经有{{article.reward_count}}人赞赏，支持一下</span>
        <span class="_3zdmIj" v-else>还没有人赞赏，支持一下</span>
       </div>
@@ -172,12 +171,12 @@
     <div class="_1-bCJJ">
      <div class="LMa6S_" :class="reward_info.money==num?'_1vONvL':''" @click="reward_info.money=num" v-for="num in reward_list"><span>{{num}}</span></div>
     </div>
-    <textarea class="_1yN79W" placeholder="给Ta留言..." v-model="content"></textarea>
+    <textarea class="_1yN79W" placeholder="给Ta留言..."></textarea>
     <div class="_1_B577">
      选择支付方式
     </div>
     <div class="_1-bCJJ">
-     <div class="LMa6S_ _3PA8BN" :class="reward_info.pay_type==key?'_1vONvL':''" @click="reward_info.pay_type=key" v-for="type,key in pay_type_list"><span>{{type}}</span></div>
+     <div class="LMa6S_ _3PA8BN" :class="reward_info.pay_type==type?'_1vONvL':''" @click="reward_info.pay_type=type" v-for="type in pay_type_list"><span>{{type}}</span></div>
     </div>
     <button type="button" class="_3A-4KL _1OyPqC _3Mi9q9 _1YbC5u" @click="payhandler"><span>确认支付</span><span> ￥</span>{{reward_info.money}}</button>
    </div>
@@ -197,7 +196,6 @@
                 token: "",
                 article_id: 0,
                 is_show_reward_window:false,
-                user_focus_text:"已关注",
                 article: {
                     user:{},
                     collection:{},
@@ -207,95 +205,32 @@
                 reward_info:{
                     money: 2,
                     content:"",
-                    pay_type: 0,
+                    pay_type:"支付宝",
                 }
             }
         },
         created(){
-
+            this.token = this.$settings.check_user_login(this);
             this.article_id = this.$route.params.id;
             this.get_article();
         },
         filters:{
             timeformat(time){
-                if(time){
-                    return time.split(".")[0].replace("T", " ");
-                }
+                return time.split(".")[0].replace("T"," ")
             }
         },
         methods:{
             get_article(){
                 // 获取文章信息
-                let token = localStorage.user_token || sessionStorage.user_token;
-                this.$axios.get(`${this.$settings.Host}/article/${this.article_id}/`,{
-                    headers:{
-                        Authorization: "jwt " + token,
-                    }
-                }).then(response=>{
+                this.$axios.get(`${this.$settings.Host}/article/${this.article_id}/`).then(response=>{
                     this.article = response.data;
                 }).catch(error=>{
                     this.$message.error("当前文章已删除!");
                     this.$router.go(-1);
                 });
             },
-            reward(){
-                this.token = this.$settings.check_user_login(this);
-                if(this.token){
-                    this.is_show_reward_window=true;
-                }
-            },
             payhandler(){
                 // 支付处理
-                this.reward_info.article_id = this.article_id;
-                this.$axios.post(`${this.$settings.Host}/payments/alipay/`,this.reward_info,{
-                    headers:{
-                        Authorization: "jwt " + this.token,
-                    }
-                }).then(response=>{
-                    location.href=response.data;
-                }).catch(error=>{
-                    this.$message.error("发起打赏请求失败!");
-                })
-            },
-            cancal_focus(){
-                // 取消关注
-                // 发送ajax
-                this.token = this.$settings.check_user_login();
-                this.$axios.post(`${this.$settings.Host}/article/focus/`,{
-                    author_id: this.article.user.id,
-                    focus: 0,
-                },{
-                    headers:{
-                        Authorization: "jwt " + this.token,
-                    }
-                }).then(response=>{
-                    this.article.focus = 1;
-                }).catch(error=>{
-                    this.$message.error("取消关注失败!");
-                })
-
-            },
-            confirm_focus(){
-                // 关注
-                this.token = this.$settings.check_user_login();
-                if(this.token){
-                    // 已经登陆的情况下
-                    // 发送ajax
-                    this.$axios.post(`${this.$settings.Host}/article/focus/`,{
-                        author_id: this.article.user.id,
-                        focus: 1, // 这里提供给服务端
-                    },{
-                        headers:{
-                            Authorization: "jwt " + this.token,
-                        }
-                    }).then(response=>{
-                        this.article.focus = 2; // 这里提供给客户端判断用的
-                        this.user_focus_text = "已关注";
-                    }).catch(error=>{
-                        this.$message.error("关注失败!");
-                    })
-
-                }
 
             }
         },

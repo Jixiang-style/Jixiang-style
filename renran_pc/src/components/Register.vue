@@ -4,9 +4,9 @@
     <div class="main">
       <h4 class="title">
         <div class="normal-title">
-          <router-link to="/user/login">登录</router-link>
+          <router-link to="/login">登录</router-link>
           <b>·</b>
-          <router-link id="js-sign-up-btn" class="active" to="/user/register">注册</router-link>
+          <router-link id="js-sign-up-btn" class="active" to="/register">注册</router-link>
         </div>
       </h4>
 
@@ -101,7 +101,16 @@
                     sms_code: this.sms_code,
                 }).then(response=>{
                     // 注册成功,则保存用户登录状态
-                    this.$settings.save_user(sessionStorage, response.data);
+                    sessionStorage.user_token = response.data.token;
+                    sessionStorage.user_name = response.data.username;
+                    sessionStorage.user_id = response.data.id;
+                    sessionStorage.user_nickname = response.data.nickname;
+                    sessionStorage.user_avatar = response.data.avatar;
+                    localStorage.removeItem("user_token");
+                    localStorage.removeItem("user_name");
+                    localStorage.removeItem("user_id");
+                    localStorage.removeItem("user_nickname");
+                    localStorage.removeItem("user_avatar");
 
                     // 登录跳转
                     this.$confirm(`${response.data.nickname},欢迎来到荏苒~`, '注册成功', {

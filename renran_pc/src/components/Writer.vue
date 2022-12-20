@@ -259,8 +259,6 @@
                   this.collection_form = false; // 隐藏添加文集的表单
                   // 把服务端中添加返回的文集信息,保存到collection_list中
                   this.collection_list.unshift(response.data);
-                  this.current_collection = 1;
-                  this.current_collection = 0;
               }).catch(error=>{
                   this.$message.error(error.response.data);
               })
@@ -447,7 +445,7 @@
                       Authorization: "jwt " + this.token,
                   }
               }).then(response=>{
-                  // this.$message.success("保存成功!");
+                  this.$message.success("保存成功!");
               }).catch(error=>{
                   this.$message.error("保存失败!");
               });

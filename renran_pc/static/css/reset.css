@@ -17,9 +17,9 @@ ul{
   list-style: none;
 }
 
-img{
-  width: 100%;
-}
+/*img{*/
+/*  width: 100%;*/
+/*}*/
 
 .header .el-menu li .el-submenu__title{
   height: 26px!important;
