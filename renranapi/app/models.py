@@ -99,6 +99,53 @@ class Users(db.Model):
         return 'User:%s' % self.nickname
 
 
+# class Banner(db.Model):
+#     """
+#     轮播图
+#     """
+#     # 表结构声明
+#     __tablename__ = 'tb_banner'
+#
+#     image = db.Column(db.String(128), nullable=True, comment="轮播图")
+#     name = db.Column(db.String(64), nullable=True, comment="轮播图标题")
+#     note = db.Column(db.String(128), nullable=True, comment="备注信息")
+#     link = db.Column(db.String(128), nullable=True, comment="轮播图广告地址")
+#     # 时间字段
+#     start_time = db.Column(db.String(128), comment="开始展示时间")
+#     end_time = db.Column(db.String(128), comment="结束展示时间")
+#
+#     # option = db.Column(db.Enum("讲师", "助教", "班主任"), default="讲师")
+#
+#     def __repr__(self):
+#         return 'Banner-name:%s' % self.name
+#
+#
+# class Nav(db.Model):
+#     """
+#     导航栏
+#     """
+#     # 表结构声明
+#     __tablename__ = 'tb_banner'
+#
+#     POSITION = (
+#         (1, "头部导航"),
+#         (2, "脚部导航"),
+#     )
+#
+#     is_http = db.Column(db.Boolean, default=True, comment="是否是站内连接（默认为是）")
+#     link = db.Column(db.String(128), nullable=True, comment="导航地址")
+#     pid = db.Column(db.String(128), nullable=True, comment="备注信息")
+#     option = db.Column(db.Integer(64), default=1, comment="导航位置（默认头部导航）")
+#     # 时间字段
+#     start_time = db.Column(db.String(128), comment="开始展示时间")
+#     end_time = db.Column(db.String(128), comment="结束展示时间")
+#
+#     # option = db.Column(db.Enum("讲师", "助教", "班主任"), default="讲师")
+#
+#     def __repr__(self):
+#         return 'Banner-name:%s' % self.name
+
+
 class Teacher(db.Model):
     # 表结构声明
     __tablename__ = 'tb_teacher'

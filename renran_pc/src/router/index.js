@@ -1,11 +1,13 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import Home from '@/components/Home'
+import Home from '../components/Home'
 import Login from "../components/Login";
 import Register from "../components/Register"
 import QQCallBack from "../components/QQCallBack";
 import Writer from "../components/Writer";
 import PostArticle from "../components/PostArticle";
+import Article from "../components/Article";
+import Wallet from "../components/Wallet";
 
 // import axios from 'axios'
 // Vue.config.axios = axios
@@ -13,44 +15,49 @@ import PostArticle from "../components/PostArticle";
 Vue.use(Router)
 
 export default new Router({
-  mode:"history",
+  mode: "history",
   routes: [
     {
       path: '/',
       name: 'Home',
       component: Home,
     },
-    // {
-    //   name:"Home",
-    //   path:"/home",
-    //   component: Home,
-    // },
     {
-      name:"Login",
-      path:"/login",
+      name: "Home",
+      path: "/home",
+      component: Home,
+    },
+    {
+      name: "Login",
+      path: "/login",
       component: Login,
     },
     {
-      name:"Register",
+      name: "Register",
       path: "/register",
-      component:Register,
-    },{
+      component: Register,
+    }, {
       path: "/oauth_callback.html",   // 改成自己注册QQ登录时的地址,不是一定要.html,只是我当初不小心加了而已,
       name: 'QQCallBack',
       component: QQCallBack,
-    },{
-      name:"Writer",
+    }, {
+      name: "Writer",
       path: "/writer",
-      component:Writer,
-    },{
-      name:"PostArticle",
+      component: Writer,
+    }, {
+      name: "PostArticle",
       path: "/post",
-      component:PostArticle,
+      component: PostArticle,
     },
-    // {
-    //   name:"Article",
-    //   path: "/article/:id",
-    //   component:Article,
-    // }
+    {
+      name: "Article",
+      path: "/article/:id",
+      component: Article,
+    },
+    {
+      name: "Wallet",
+      path: "/wallet",
+      component: Wallet,
+    },
   ]
 })

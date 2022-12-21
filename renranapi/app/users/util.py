@@ -15,6 +15,7 @@ import os
 import sys
 import time
 from urllib.parse import urlencode
+
 sys.path.append(os.path.abspath(os.path.join(os.getcwd())).split('renranapi')[0])
 import jwt
 from flask import request, jsonify
@@ -99,7 +100,7 @@ def decode_token(token, secret=None):
         return "无效的token"
 
 
-def authenticate(username):
+def authenticate(username, password):
     """
     用户登录，登录成功返回token，将登录时间写入数据库；失败返回失败原因
     :param username:
@@ -108,9 +109,9 @@ def authenticate(username):
     """
     # 验证账号密码，正确则返回token，用于后续接口权限验证
     # 查询数据库，是否有满足条件的用户
-    user_db_info = Users.query.filter_by(nickname=username).first()
+    user_db_info = Users.query.filter_by(mobile=username).first()
     print("数据库查询，第一条数据", user_db_info)
-    if user_db_info:
+    if Users.check_password(Users, user_db_info.password, password):
         print("登录成功！")
         login_time = int(time.time())
         user_db_info.login_time = login_time

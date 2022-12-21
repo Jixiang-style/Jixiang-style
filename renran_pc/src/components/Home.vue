@@ -104,7 +104,22 @@ export default {
   name: "Home",
   data() {
     return {
-      banner_list: [],  // 轮播图广告
+      banner_list: [{
+        "link": 0,
+        "image": "/static/uploads/banner/1.jpg"
+      }, {
+        "link": 1,
+        "image": "/static/uploads/banner/2.jpg"
+      }, {
+        "link": 2,
+        "image": "/static/uploads/banner/3.jpg"
+      }, {
+        "link": 3,
+        "image": "/static/uploads/banner/4.jpg"
+      }, {
+        "link": 4,
+        "image": "/static/uploads/banner/5.jpg"
+      }],  // 轮播图广告
     }
   },
   components: {
@@ -117,8 +132,9 @@ export default {
   methods: {
     get_banner() {
       // 获取轮播广告
-      this.$axios.get(`${this.$settings.Host}/banner/`).then(response => {
+      this.$axios.get(`${this.$settings.Host}/api/banner`).then(response => {
         this.banner_list = response.data;
+        console.log("获取到的值", this.banner_list)
       }).catch(error => {
         this.$message.error("无法获取服务端的轮播广告信息!");
       })

@@ -1,7 +1,7 @@
 export default {
   Host: "http://127.0.0.1:5000",
   TC_captcha: {
-    app_id: "2015568925",
+    app_id: "2072894469",
   },
   save_user(storage, data) {
     if (storage === sessionStorage) {

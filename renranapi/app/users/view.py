@@ -10,6 +10,7 @@
 import time
 
 import jwt
+import requests
 from flask import g, request, jsonify
 from util import SALT
 from util import identify, authenticate
@@ -72,22 +73,86 @@ def hello_world():
 @app.route('/api/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        data = request.form
-        type_ = data.get("type")
-        if type_ == 'login':
-            username = data.get("username")
-            password = data.get("password")
-            if not username or not password:
-                return jsonify(common.falseReturn("", "登陆失败，请检查用户名密码是否正确"))
-            else:
-                return authenticate(username)
+        data = request.json
+        print("登录获取到的数据是", data)
+        username = data.get("username")
+        password = data.get("password")
+        if not username or not password:
+            return jsonify(common.falseReturn("", "登陆失败，请检查用户名密码是否正确"))
         else:
-            return {"code": 201, "message": "type is false"}
-
+            return authenticate(username, password)
     elif request.method == 'GET':
         return {"code": 202, "message": "get is nothing"}
     else:
         return {"code": 203, "message": "'not support other method'"}
+
+
+# 腾讯防水墙(todo 还有问题，待排查)
+@app.route('/api/captcha', methods=['GET', 'POST'])
+def captcha():
+    if request.method == 'POST':
+        data = request.json
+        print("防水墙获取到的数据是", data)
+        # 获取票据信息
+        ret = request.json.get("ret")
+        rand_str = request.json.get("randstr")
+        ticket = request.json.get("ticket")
+        ip = request.remote_addr
+        # 检查票据信息
+        check_ret = check_robot(ticket, rand_str, ip)
+        check_ret.update({"ret": ret, "rand_str": rand_str, "ticket": ticket, "ip": ip})
+        print("检查票据", check_ret)
+        return jsonify(common.trueReturn({"message": True, "randstr": rand_str}, "防水墙验证成功").get("data"))
+
+
+# 轮播图(todo 先写在本地，后续同步到数据库)
+@app.route('/api/banner', methods=['GET', 'POST'])
+def banner():
+    if request.method == 'GET':
+        banner_base_url = "/Users/Jixiang/PycharmProjects/pythonProject/project/renran/renranapi/uploads/banner/"
+        banner_base_url = "/static/uploads/banner/"
+        banners = dict()
+        banners['data'] = list()
+        for i in range(5):
+            banners['data'].append({"image": i, "link": banner_base_url + "%d.jpg" % (i+1)})
+        print(banners)
+        # data = request.json
+        # print("防水墙获取到的数据是", data)
+        # # 获取票据信息
+        # ret = request.json.get("ret")
+        # rand_str = request.json.get("randstr")
+        # ticket = request.json.get("ticket")
+        # ip = request.remote_addr
+        # # 检查票据信息
+        # check_ret = check_robot(ticket, rand_str, ip)
+        # check_ret.update({"ret": ret, "rand_str": rand_str, "ticket": ticket, "ip": ip})
+        # print("检查票据", check_ret)
+        return jsonify(banners)
+
+
+# 检查票据信息
+def check_robot(ticket, rand_str, user_ip):
+    url = "https://ssl.captcha.qq.com/ticket/verify"
+    """
+    aid (必填)	2032405422
+    AppSecretKey (必填)	04urfsEZJDbinsshD1hDlPw**
+    Ticket (必填)	验证码客户端验证回调的票据
+    Randstr (必填)	验证码客户端验证回调的随机串
+    UserIP (必填)	提交验证的用户的IP地址（eg: 10.127.10.2）
+    """
+    params = {
+        "aid": common.TENCENT_CAPTCHA.get("APPID"),
+        "AppSecretKey": common.TENCENT_CAPTCHA.get("App_Secret_Key"),
+        "Ticket": ticket,
+        "Randstr": rand_str,
+        "UserIP": user_ip
+    }
+
+    response = requests.get(url, params=params, verify=False)
+
+    # {response:1, evil_level:70, err_msg:""}
+
+    return response.json()
 
 
 # 注册

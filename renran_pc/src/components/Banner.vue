@@ -1,5 +1,5 @@
 <template>
-<div id="home">
+  <div id="home">
     <Header></Header>
     <div class="container">
       <div class="row">
@@ -33,7 +33,7 @@
               </li>
               <li class="have-img">
                 <a class="wrap-img" href="" target="_blank">
-                  <img class="img-blur-done" src="/static/image/10907624-107943365323e5b9.jpeg" />
+                  <img class="img-blur-done" src="/static/image/10907624-107943365323e5b9.jpeg"/>
                 </a>
                 <div class="content">
                   <a class="title" target="_blank" href="">“不耻下问”，正在毁掉你的人生</a>
@@ -56,7 +56,7 @@
             </ul>
             <!-- 文章列表模块 -->
           </div>
-        <a href="" class="load-more">阅读更多</a></div>
+          <a href="" class="load-more">阅读更多</a></div>
         <div class="aside">
           <!-- 推荐作者 -->
           <div class="recommended-author-wrap">
@@ -69,17 +69,17 @@
               <ul class="list">
                 <li>
                   <a href="" target="_blank" class="avatar">
-                    <img src="/static/image/avatar.webp" />
+                    <img src="/static/image/avatar.webp"/>
                   </a>
-                  <a class="follow" state="0"><img src="/static/image/follow.svg" alt="" />关注</a>
+                  <a class="follow" state="0"><img src="/static/image/follow.svg" alt=""/>关注</a>
                   <a href="" target="_blank" class="name">董克平日记</a>
                   <p>写了807.1k字 · 2.5k喜欢</p>
                 </li>
                 <li>
                   <a href="" target="_blank" class="avatar">
-                    <img src="/static/image/avatar.webp" />
+                    <img src="/static/image/avatar.webp"/>
                   </a>
-                  <a class="follow" state="0"><img src="/static/image/follow.svg" alt="" />关注</a>
+                  <a class="follow" state="0"><img src="/static/image/follow.svg" alt=""/>关注</a>
                   <a href="" target="_blank" class="name">董克平日记</a>
                   <p>写了807.1k字 · 2.5k喜欢</p>
                 </li>
@@ -97,39 +97,39 @@
 </template>
 
 <script>
-  import Header from "./common/Header";
-  import Footer from "./common/Footer";
-  export default {
-      name:"Home",
-      data(){
-          return {
-            banner_list: [],  // 轮播图广告
-          }
-      },
-      components:{
-        Header,
-        Footer,
-      },
-      created(){
-         this.get_banner();
-      },
-      methods:{
-          get_banner(){
-              // 获取轮播广告
-              this.$axios.get(`${this.$settings.Host}/banner/`).then(response=>{
-                  this.banner_list = response.data;
-              }).catch(error=>{
-                  this.$message.error("无法获取服务端的轮播广告信息!");
-              })
-          }
-      }
+import Header from "./common/Header";
+import Footer from "./common/Footer";
+
+export default {
+  name: "Home",
+  data() {
+    return {
+      banner_list: [],  // 轮播图广告
+    }
+  },
+  components: {
+    Header,
+    Footer,
+  },
+  created() {
+    this.get_banner();
+  },
+  methods: {
+    get_banner() {
+      // 获取轮播广告
+      this.$axios.get(`${this.$settings.Host}/banner/`).then(response => {
+        this.banner_list = response.data;
+      }).catch(error => {
+        this.$message.error("无法获取服务端的轮播广告信息!");
+      })
+    }
   }
+}
 </script>
 
 
-
 <style>
-.banner img{
+.banner img {
   max-height: 100%;
   max-width: 100%;
 }

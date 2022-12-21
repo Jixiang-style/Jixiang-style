@@ -75,7 +75,7 @@ export default {
       }
 
       // 2. 发送ajax请求服务端
-      this.$axios.post(`http://127.0.0.1:5000/api/login/`, {
+      this.$axios.post(`http://127.0.0.1:5000/api/login`, {
         username: this.username,
         password: this.password,
       }).then(response => { // javascript最新语法中, 可以使用箭头函数
@@ -114,7 +114,7 @@ export default {
           type: 'success'
         }).then(() => {
           // 跳转到个人中心
-          this.$router.push("/user");
+          this.$router.push("/home");
         }).catch(() => {
           // 跳转到上一页
           this.$router.back(); // this.$router.go(-1);
@@ -150,7 +150,7 @@ export default {
         *
         * */
         if (res.ret === 0) {
-          this.$axios.post(`${this.$settings.Host}/users/captcha/`, {
+          this.$axios.post(`${this.$settings.Host}/api/captcha`, {
             ret: res.ret,
             ticket: res.ticket,
             randstr: res.randstr,
