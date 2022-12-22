@@ -8,6 +8,7 @@
 @desc:
 """
 import time
+from urllib.parse import urlencode
 
 import jwt
 import requests
@@ -69,7 +70,6 @@ def hello_world():
 
 
 # 登录
-# todo qq登录
 @app.route('/api/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -110,11 +110,11 @@ def captcha():
 def banner():
     if request.method == 'GET':
         banner_base_url = "/Users/Jixiang/PycharmProjects/pythonProject/project/renran/renranapi/uploads/banner/"
-        banner_base_url = "/static/uploads/banner/"
+        banner_base_url = "/static/image/"
         banners = dict()
         banners['data'] = list()
-        for i in range(5):
-            banners['data'].append({"image": i, "link": banner_base_url + "%d.jpg" % (i+1)})
+        for i in range(4):
+            banners['data'].append({"image": i, "link": banner_base_url + "%d.jpg" % (i + 1)})
         print(banners)
         # data = request.json
         # print("防水墙获取到的数据是", data)
@@ -150,32 +150,27 @@ def check_robot(ticket, rand_str, user_ip):
 
     response = requests.get(url, params=params, verify=False)
 
-    # {response:1, evil_level:70, err_msg:""}
-
     return response.json()
 
 
-# 注册
-# # todo 短信、qq邮箱接收短信
-# @app.route('/api/register', methods=['post'])
-# def register():
-#     username = request.form.get("username")
-#     password = request.form.get("password")
-#     user = Users(nickname=username, password=Users.set_password(Users, password), login_time=int(time.time()))
-#     Users.add(Users, user)
-#     if user.id:
-#         returnUser = {
-#             'id': user.id,
-#             'nickname': user.nickname,
-#             'login_time': user.login_time
-#         }
-#         return jsonify(common.trueReturn(returnUser, "用户注册成功"))
-#     else:
-#         return jsonify(common.falseReturn("", "用户注册失败"))
+# todo qq登录暂时无法实现，需要注册企业资质
+@app.route('/api/oauth/qq/url', methods=['post', 'get'])
+def qq_auth():
+    print("即将获取qq登录地址")
+    # 获取qq登录地址
+    params = {
+        'response_type': 'code',
+        'client_id': common.QQ_APP_ID,
+        'redirect_uri': common.QQ_APP_URI,
+        'state': common.QQ_STATE,
+        'scope': 'get_user_info',
+    }
+
+    url = "https://graph.qq.com/oauth2.0/authorize?" + urlencode(params)
+    print(url)
+    return jsonify(common.trueReturn(url, "返回qq登录地址成功").get("data"))
 
 
-# 注册
-# todo 短信、qq邮箱接收短信
 @app.route('/api/register', methods=['post', 'get'])
 def register():
     # 获取结构体信息
@@ -205,7 +200,10 @@ def register():
         user = Users(nickname=nickname, mobile=phone_number, password=Users.set_password(Users, password),
                      login_time=str(time.time()))
         DB(Users).add(user)
-        return jsonify(common.trueReturn("", "注册成功!!!"))
+        auth_data = authenticate(phone_number, password).json
+        data = {"token": auth_data.get("token"), "nickname": user.nickname, "id": user.id,
+                "username": user.mobile}
+        return jsonify(common.trueReturn(data, "注册成功!!!").get("data"))
     else:
         return jsonify(common.falseReturn("", "验证码有误"))
 

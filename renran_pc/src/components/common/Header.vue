@@ -7,11 +7,19 @@
 
         <!-- 右上角 -->
         <!-- 未登录显示登录/注册/写文章 -->
-        <router-link class="btn write-btn" target="_blank" to="/writer"><img class="icon-write"
-                                                                             src="/static/image/write.svg">写文章
+        <router-link class="btn write-btn" target="_blank" to="/writer">
+          <img class="icon-write" src="/static/image/write.svg">写文章
         </router-link>
-        <router-link class="btn sign-up" id="sign_up" to="/register">注册</router-link>
-        <router-link class="btn log-in" id="sign_in" to="/login">登录</router-link>
+        <div>
+          <ul v-if="!nickname">
+            <router-link class="btn sign-up" id="sign_up" to="/register">注册</router-link>
+            <router-link class="btn log-in" id="sign_in" to="/login">登录</router-link>
+          </ul>
+          <ul>
+            <router-link class="btn log-in" id="user" to="/user">{{ nickname }}</router-link>
+          </ul>
+        </div>
+
         <div class="container">
           <div class="collapse navbar-collapse" id="menu">
             <ul class="nav navbar-nav">
@@ -43,12 +51,12 @@
                   </li>
                 </ul>
               </li>
-              <!--              <li class="tab">-->
-              <!--                <a href="/">-->
-              <!--                  <i class="iconfont ic-navigation-notification menu-icon"></i>-->
-              <!--                  <span class="menu-text">消息</span>-->
-              <!--                </a>-->
-              <!--              </li>-->
+              <li class="tab">
+                <a href="/">
+                  <i class="iconfont ic-navigation-notification menu-icon"></i>
+                  <span class="menu-text">消息</span>
+                </a>
+              </li>
               <li class="search">
                 <form target="_blank" action="/search" accept-charset="UTF-8" method="get">
                   <input type="text" name="q" id="q" value="" autocomplete="off" placeholder="搜索" class="search-input">
@@ -71,12 +79,14 @@ export default {
   name: "Header",
   data() {
     return {
+      nickname: sessionStorage.getItem("user_nickname"),
       nav_list: [],
     }
   },
   created() {
     this.get_nav();
   },
+
   methods: {
     get_nav() {
       this.$axios.get(`${this.$settings.Host}/nav/header/`).then(response => {

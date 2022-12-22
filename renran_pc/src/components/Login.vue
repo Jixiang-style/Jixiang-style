@@ -172,7 +172,7 @@ export default {
     },
     qq_login() {
       // 跳转到QQ第三方登录页面
-      this.$axios.get(`${this.$settings.Host}/oauth/qq/url/`, {
+      this.$axios.get(`${this.$settings.Host}/api/oauth/qq/url`, {
         params: {
           state: "/",
         }

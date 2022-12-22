@@ -30,12 +30,6 @@ headers = {
 # 密钥
 SALT = 'iv%i6xo7l8_t9bf_u!8#g#m*)*+ej@bek6)(@u3kh*42+unjv='
 
-# QQ 登录参数
-QQ_APP_ID = '101403367'
-QQ_APP_KEY = '93112df14c10d6fde74baa62f5de95ab'
-QQ_APP_URI = ''
-QQ_APP_CODE = ''
-
 
 def get_access_token():
     """
@@ -118,7 +112,10 @@ def authenticate(username, password):
         # todo token写进数据库
         Users.update(Users)
         token = encode_token(user_db_info.id, login_time)
-        return jsonify(common.trueReturn(token, "登录成功"))
+        data = {"token": token, "nickname": user_db_info.nickname, "id": user_db_info.id,
+                "username": user_db_info.mobile}
+        print("data是", data)
+        return jsonify(common.trueReturn(data, "登录成功").get("data"))
     else:
         return jsonify(common.falseReturn("", "登录失败", 401))
 

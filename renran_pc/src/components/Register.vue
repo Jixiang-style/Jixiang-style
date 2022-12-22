@@ -120,6 +120,8 @@ export default {
         localStorage.removeItem("user_avatar");
 
         // 登录跳转
+        console.log("收到的信息",response.data)
+        console.log("收到的昵称",response.data.nickname)
         this.$confirm(`${response.data.nickname},欢迎来到荏苒~`, '注册成功', {
           confirmButtonText: '去个人中心',
           cancelButtonText: '返回上一页',

@@ -1,13 +1,15 @@
 <template>
   <div id="home">
-    <Header></Header>
+    <Header src="/static/image/font.png">
+
+    </Header>
     <div class="container">
       <div class="row">
         <div class="main">
           <!-- Banner -->
           <div class="banner">
             <el-carousel height="272px" indicator-position="none" :interval="2000">
-              <el-carousel-item v-for="banner,key in banner_list" :key="item">
+              <el-carousel-item v-for="(banner,key) in banner_list" :key="key">
                 <a :href="banner.link"><img :src="banner.image" alt=""></a>
               </el-carousel-item>
             </el-carousel>
@@ -33,7 +35,7 @@
               </li>
               <li class="have-img">
                 <a class="wrap-img" href="" target="_blank">
-                  <img class="img-blur-done" src="/static/image/10907624-107943365323e5b9.jpeg"/>
+                  <img class="img-blur-done" src="/static/image/smiling_guys.jpg"/>
                 </a>
                 <div class="content">
                   <a class="title" target="_blank" href="">“不耻下问”，正在毁掉你的人生</a>
@@ -105,21 +107,19 @@ export default {
   data() {
     return {
       banner_list: [{
-        "link": 0,
-        "image": "/static/uploads/banner/1.jpg"
+        "link": "/Users/Jixiang/Downloads/gitee.renran/renran/renran_pc/static/image/1.jpg",
+        "image": "/static/image/1.jpg"
       }, {
-        "link": 1,
-        "image": "/static/uploads/banner/2.jpg"
+        "link": "/Users/Jixiang/Downloads/gitee.renran/renran/renran_pc/static/image/2.jpg",
+        "image": "/static/image/2.jpg"
       }, {
-        "link": 2,
-        "image": "/static/uploads/banner/3.jpg"
+        "link": "/Users/Jixiang/Downloads/gitee.renran/renran/renran_pc/static/image/3.jpg",
+        "image": "/static/image/3.jpg"
       }, {
-        "link": 3,
-        "image": "/static/uploads/banner/4.jpg"
-      }, {
-        "link": 4,
-        "image": "/static/uploads/banner/5.jpg"
-      }],  // 轮播图广告
+        "link": "/Users/Jixiang/Downloads/gitee.renran/renran/renran_pc/static/image/4.jpg",
+        "image": "/static/image/4.jpg"
+      }
+      ],  // 轮播图广告
     }
   },
   components: {
