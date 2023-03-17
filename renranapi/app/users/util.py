@@ -11,10 +11,14 @@
 # 构造header
 import datetime
 import functools
+import os
+import sys
 import time
+from urllib.parse import urlencode
 
+sys.path.append(os.path.abspath(os.path.join(os.getcwd())).split('renranapi')[0])
 import jwt
-from flask import current_app, g, request, jsonify
+from flask import request, jsonify
 from renranapi.app import common
 from renranapi.app.models import Users
 
@@ -25,12 +29,6 @@ headers = {
 
 # 密钥
 SALT = 'iv%i6xo7l8_t9bf_u!8#g#m*)*+ej@bek6)(@u3kh*42+unjv='
-
-# QQ 登录参数
-QQ_APP_ID = '101403367'
-QQ_APP_KEY = '93112df14c10d6fde74baa62f5de95ab'
-QQ_APP_URI = ''
-QQ_APP_CODE = ''
 
 
 def get_access_token():
@@ -96,7 +94,7 @@ def decode_token(token, secret=None):
         return "无效的token"
 
 
-def authenticate(username):
+def authenticate(username, password):
     """
     用户登录，登录成功返回token，将登录时间写入数据库；失败返回失败原因
     :param username:
@@ -105,16 +103,19 @@ def authenticate(username):
     """
     # 验证账号密码，正确则返回token，用于后续接口权限验证
     # 查询数据库，是否有满足条件的用户
-    user_db_info = Users.query.filter_by(nickname=username).first()
+    user_db_info = Users.query.filter_by(mobile=username).first()
     print("数据库查询，第一条数据", user_db_info)
-    if user_db_info:
+    if Users.check_password(Users, user_db_info.password, password):
         print("登录成功！")
         login_time = int(time.time())
         user_db_info.login_time = login_time
         # todo token写进数据库
         Users.update(Users)
         token = encode_token(user_db_info.id, login_time)
-        return jsonify(common.trueReturn(token, "登录成功"))
+        data = {"token": token, "nickname": user_db_info.nickname, "id": user_db_info.id,
+                "username": user_db_info.mobile}
+        print("data是", data)
+        return jsonify(common.trueReturn(data, "登录成功").get("data"))
     else:
         return jsonify(common.falseReturn("", "登录失败", 401))
 

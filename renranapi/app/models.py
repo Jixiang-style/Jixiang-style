@@ -7,18 +7,13 @@
 @time: 2022/12/14 16:31
 @desc:
 """
-import time
-
-from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy.exc import SQLAlchemyError
+from renranapi.manage import app
 import pymysql
 
 pymysql.install_as_MySQLdb()
-
-# 初始化
-app = Flask(import_name=__name__, template_folder='templates')
 
 
 # 声明和加载配置
@@ -69,6 +64,7 @@ class Users(db.Model):
     id = db.Column(db.Integer, primary_key=True, comment="主键")
     # 用户账户信息
     nickname = db.Column(db.String(64), nullable=True, unique=True, comment="用户昵称")
+    mobile = db.Column(db.String(64), index=True, comment="手机号码")
     password = db.Column(db.String(128), nullable=True, comment="密码")
     login_time = db.Column(db.String(128), default=0, comment="登录时间")
 
@@ -101,6 +97,53 @@ class Users(db.Model):
 
     def __repr__(self):
         return 'User:%s' % self.nickname
+
+
+# class Banner(db.Model):
+#     """
+#     轮播图
+#     """
+#     # 表结构声明
+#     __tablename__ = 'tb_banner'
+#
+#     image = db.Column(db.String(128), nullable=True, comment="轮播图")
+#     name = db.Column(db.String(64), nullable=True, comment="轮播图标题")
+#     note = db.Column(db.String(128), nullable=True, comment="备注信息")
+#     link = db.Column(db.String(128), nullable=True, comment="轮播图广告地址")
+#     # 时间字段
+#     start_time = db.Column(db.String(128), comment="开始展示时间")
+#     end_time = db.Column(db.String(128), comment="结束展示时间")
+#
+#     # option = db.Column(db.Enum("讲师", "助教", "班主任"), default="讲师")
+#
+#     def __repr__(self):
+#         return 'Banner-name:%s' % self.name
+#
+#
+# class Nav(db.Model):
+#     """
+#     导航栏
+#     """
+#     # 表结构声明
+#     __tablename__ = 'tb_banner'
+#
+#     POSITION = (
+#         (1, "头部导航"),
+#         (2, "脚部导航"),
+#     )
+#
+#     is_http = db.Column(db.Boolean, default=True, comment="是否是站内连接（默认为是）")
+#     link = db.Column(db.String(128), nullable=True, comment="导航地址")
+#     pid = db.Column(db.String(128), nullable=True, comment="备注信息")
+#     option = db.Column(db.Integer(64), default=1, comment="导航位置（默认头部导航）")
+#     # 时间字段
+#     start_time = db.Column(db.String(128), comment="开始展示时间")
+#     end_time = db.Column(db.String(128), comment="结束展示时间")
+#
+#     # option = db.Column(db.Enum("讲师", "助教", "班主任"), default="讲师")
+#
+#     def __repr__(self):
+#         return 'Banner-name:%s' % self.name
 
 
 class Teacher(db.Model):
@@ -181,8 +224,8 @@ def index():
 
 # if __name__ == '__main__':
 # 创建/删除所有的表
-# with app.app_context():
-#     db.create_all()  # 创建表
+#     with app.app_context():
+#         db.create_all()  # 创建表
 #     us3 = Users(nickname='张三', password='123456', login_time=int(time.time()))
 #     us4 = Users(nickname='李四', password='123456', login_time=int(time.time()))
 #     us5 = Users(nickname='admin', password='123456', login_time=int(time.time()))
@@ -191,7 +234,7 @@ def index():
 #     db.session.add_all([us5, us3, us4])
 #     db.session.commit()
 #     # 删除表
-#     # db.drop_all()
+#         db.drop_all()
 
 # 创建对象
 # role1 = Role(name="admin")
