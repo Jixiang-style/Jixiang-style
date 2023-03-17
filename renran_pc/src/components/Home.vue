@@ -8,9 +8,10 @@
         <div class="main">
           <!-- Banner -->
           <div class="banner">
-            <el-carousel height="272px" indicator-position="none" :interval="2000">
+            <el-carousel height="272px" indicator-position="none" :interval="5000">
               <el-carousel-item v-for="(banner,key) in banner_list" :key="key">
-                <a :href="banner.link"><img :src="banner.image" alt=""></a>
+                <a :href="banner.link" style="display: block; height: 100%;width: 100%">
+                  <img :src="banner.image" style="margin: auto;display: block;width: 100%" alt=""></a>
               </el-carousel-item>
             </el-carousel>
           </div>
