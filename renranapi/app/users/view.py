@@ -110,11 +110,12 @@ def captcha():
 def banner():
     if request.method == 'GET':
         banner_base_url = "/Users/Jixiang/PycharmProjects/pythonProject/project/renran/renranapi/uploads/banner/"
-        banner_base_url = "/static/image/"
+        banner_url = "/static/image/"
         banners = dict()
         banners['data'] = list()
         for i in range(4):
-            banners['data'].append({"image": i, "link": banner_base_url + "%d.jpg" % (i + 1)})
+            banners['data'].append(
+                {"image": banner_url + "%d.jpg" % (i + 1), "link": banner_base_url + "%d.jpg" % (i + 1)})
         print(banners)
         # data = request.json
         # print("防水墙获取到的数据是", data)
